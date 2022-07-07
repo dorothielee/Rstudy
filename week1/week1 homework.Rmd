@@ -1,0 +1,152 @@
+---
+title: "week1 homework"
+output: github_document
+date: '2022-07-07'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+R markdown은 **R studio**에서 markdown 스크립트를 작성할 수 있게 해주는 형식이다.
+
+# (1) Cheetsheets
+
+https://www.rstudio.com/resources/cheatsheets/
+
+---
+
+\footnote{:-왼쪽 정렬, -:오른쪽 정렬, :-: 중앙}
+
+|제목|내용|
+|:-|:-|
+|안녕하세요|안녕하세요|
+
+```{r}
+# install.packages("tidyverse")
+library(tidyverse)
+```
+```{r}
+head(mpg)
+str(mpg)
+```
+
+```{r}
+# dot plot
+# aes = aesthetic
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) # y: int x: num
+
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), color = "red") # the color of the points
+
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = "red")) # with the legend
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5)) # diff color with the threshold
+
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class)) # with the legend
+
+```
+
+```{r}
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) # the opacity of a geom
+
+# alpha range from 0 to 1
+# lower values correspond to more transparent colors
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), alpha = 0.2)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), alpha = 0.8)
+
+```
+
+```{r}
+# bar plot
+
+ggplot(mpg) +
+  geom_bar(mapping = aes(x = class, fill = "red")) # x: chr
+
+```
+
+## (2) 면분할
+
+```{r}
+# facet
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2) # divide into class
+
+ggplot(mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl) # drv = chr, cyl = int
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ drv)
+
+```
+
+```{r}
+str(diamonds)
+
+# bar plot
+ggplot(diamonds) +
+  geom_bar(mapping = aes(x = cut)) 
+
+ggplot(diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut)) # fill the bar with diff color, legend
+
+ggplot(diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity)) # divide each level of the bar with clarity
+
+ggplot(diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge") # same with the plot below
+
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(position = "dodge")
+
+```
+
+## (3) 좌표계
+
+```{r}
+# coord
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge") + 
+  coord_flip() # 축 바꿈
+
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(position = "dodge") +
+  coord_polar() # 극좌표
+```
+
+```{r}
+str(diamonds)
+
+diamonds_test <- sample(1:nrow(diamonds), size = 1000, replace = FALSE)
+diamonds_test <- diamonds[diamonds_test,]
+fit_lr <- lm(price ~ carat + cut + clarity, data = diamonds_test)
+
+pred <- fit_lr$fitted.values
+real <- diamonds_test$price
+
+```
+
+```{r}
+ggplot(data = data.frame(x = diamonds_test$carat, pred = pred, real = real)) +
+  geom_point(mapping = aes(x = x, y = real, color = "black")) +
+  geom_point(mapping = aes(x = x, y = pred, color = "red"), alpha = 0.5) +
+  scale_colour_manual(values = c("black", "red"),
+                      labels = c("real", "pred"),
+                      name = "real / pred") +
+  geom_smooth(mapping = aes(x = x, y = pred, color = "red")) +
+  geom_smooth(mapping = aes(x = x, y = real, color = "black")) +
+  labs(x = "carat", y = "price", title = "diamonds data regression")
+```
+
